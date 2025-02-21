@@ -5,10 +5,10 @@ Text-Based Adventure Game
 3. 
 
 Flow of the Game:
-1. Select class (wizard, swordsman, ranger)
-2. Starting area: Village
-3. Paths: up, down, left, right (forest, cave, swamp, mountain)
-4. A Player can select where to go
+1. Select class (wizard, swordsman, ranger) - (check)
+2. Starting area: Village - (check)
+3. Paths: up, down, left, right (forest, cave, swamp, mountain) - (check)
+4. A Player can select where to go - (check)
 5. Each path has its own ENEMIES
 6. 
 

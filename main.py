@@ -170,7 +170,7 @@ def display_player_hp():
     print(f"Player HP: {player.get('HP', 'Unknown')}")
 
 def display_boss_hp(difficulty):
-    # Placeholder for boss HP display logic based on difficulty.
+    print("TEST")
     pass
 
 def starting():

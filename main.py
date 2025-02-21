@@ -53,14 +53,14 @@ def encounter_enemies(area):
             {"name": "Tikbalang", "HP": 9.0, "ATK": 7.0, "DEF": 2.0}
         ],
         "Mountains": [
-            {"name": "Mananggal", "HP": 10.0, "ATK": 6.0, "DEF": 3.0},
-            {"name": "Tyanak", "HP": 8.0, "ATK": 7.0, "DEF": 3.0},
-            {"name": "Tik-tik", "HP": 9.0, "ATK": 5.0, "DEF": 4.0}
+            {"name": "Bandit", "HP": 10.0, "ATK": 6.0, "DEF": 3.0},
+            {"name": "Giant Centipede", "HP": 8.0, "ATK": 7.0, "DEF": 3.0},
+            {"name": "Rodent", "HP": 9.0, "ATK": 5.0, "DEF": 4.0}
         ],
         "Cave": [
-            {"name": "Skeleton", "HP": 7.0, "ATK": 5.0, "DEF": 2.0},
-            {"name": "Cave Bat", "HP": 6.0, "ATK": 4.0, "DEF": 2.0},
-            {"name": "Goblin", "HP": 8.0, "ATK": 6.0, "DEF": 3.0}
+            {"name": "Mananggal", "HP": 7.0, "ATK": 5.0, "DEF": 2.0},
+            {"name": "Tyanak", "HP": 6.0, "ATK": 4.0, "DEF": 2.0},
+            {"name": "Tik-tik", "HP": 8.0, "ATK": 6.0, "DEF": 3.0}
         ],
         "Swamp": [
             {"name": "Swamp Beast", "HP": 9.0, "ATK": 6.0, "DEF": 3.0},

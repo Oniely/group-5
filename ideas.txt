@@ -10,7 +10,7 @@ Flow of the Game:
 3. Paths: up, down, left, right (forest, cave, swamp, mountain) - (check)
 4. A Player can select where to go - (check)
 5. Each path has its own ENEMIES
-6. 
+6. Every Enemies has drops and is given to player on defeat - (check)
 
 Variables:
 1. Player HP

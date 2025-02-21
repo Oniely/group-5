@@ -43,3 +43,10 @@ Data Sets:
 Files:
 1. Player data.txt
 2. World data.txt
+
+
+Formulas:
+
+Attack -> the players ATK is rolled on a multiplicative dice roll with the range of 1 to 6. This gives us a possible multiplier of 10% to 60% extra damage. The final damage is then calculated by adding the player's base ATK to the damage from the dice roll, multiplied by the multiplier. (Player Base Damage + (dice roll * 0.1))
+
+Defense -> the players DEF is used as a baseline for a percentage to negate the damage taken. A defense of 4 means 40% damage negation. The damage taken is calculated as: (DamageTaken - (DamageTaken * DEF))

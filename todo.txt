@@ -1,3 +1,35 @@
-1. Displaying of Player & Boss HP
-2. UI of CLI
-3. Handling of Roll of dice when entering a path (to sleep or to not)
+1. Displaying of Player & Boss HP - ✅Partially done, only need to display BOSS HP now
+
+2. UI of CLI - 🟥
+    What to do? waay gd ko d ya may ma minsaran AHHAHAHAHA 😎
+
+3. Handling of Roll of dice when entering a path (to sleep or to not) - ✅Done
+
+4. Inventory CRUD (Create, Read, Update, Delete) - 🟥
+    What to do? The inventory lacks a "drop" or "discard" feature as well as "create" since a looting system has not yet been established. Ang ano pa gd gali mag buy and sell items pwede ta mn di ma implement tu ang gin tudlo ni miss bala sa quote2.
+
+5. Looting system - 🟥
+    What to do? The looting system for now will be tested on dead enemies, we will try to do a random chance of obtaining an item from an enemy's drop table. We can also try to implement it in the "explore" option in when in an area (Forest, Cave, Mountain, and Swamp). Kag wala pa d gali ang mga loot drops na lista sa mga kuntra, hilimuon pa
+
+6. Expand Path - 🟥
+    What to do? Expand on the "explore" we can try adding an option where if we choose explore we use the arrow keys for navigation, maybe we can setup a visual UI of a randomized map? We can probably make that using a 2D array, but this might be too complex for now. Let's just try first a random chance encounter based on which arrows are pressed, have the random chance encounter rotate along the arrows for unpredictable chance, in a way this tricks the player into thinking they have freedom of choice, but they really do not in this version for now.
+
+7. Boss Battle - 🟥
+    What to do? Implement a boss battle system where after the player has slain an x amount of enemies, a boss will appear and the player will have to defeat it to proceed or maybe what we can do is have the boss appear after reaching an area in the 2D array? This is when we use the arrow keys to navigate through a maze like path, but this might be too complex for now. It's best that we first try the system where if we slay an x amount of enemies a boss will appear.
+
+8. AI NPC - 🟥
+    What to do? Just a simple chatbot NPC would be nice.
+
+9. Save Game - 🟥
+    What to do? Implement a save game system where the player can save their game and load it later.
+
+10. Load Game - 🟥
+    What to do? Implement a load game system where the player can load their saved game.
+
+11. World Persistence - 🟥
+    Keeping track of events in the game, this means we not only save the player's stats but also the progress of the game itself. For example a merchant had 10 apples we bought 3, if we saved the game then the merchant will have 7 apples the next time we closed the application and loaded back in.
+
+12. Multiplayer 😎 - 🟥
+    What to do? Implement a multiplayer system where the player can join a group and play together. How can we do this? I don't know, but in concept it would be that the host will be the party leader and they would only be the one able to navigate around, the player who joined the party would be able to do everything else except go to different areas.
+
+    

@@ -1,0 +1,45 @@
+Text-Based Adventure Game
+
+1. Storytelling
+2. Enemies & Combat
+3. 
+
+Flow of the Game:
+1. Select class (wizard, swordsman, ranger)
+2. Starting area: Village
+3. Paths: up, down, left, right (forest, cave, swamp, mountain)
+4. A Player can select where to go
+5. Each path has its own ENEMIES
+6. 
+
+Variables:
+1. Player HP
+2. Player Gold
+3. Player EXP
+4. ATK
+5. Eliminate Counter (if reach 4, a boss will appear)
+6. Player Inventory - Items of player (Dict)
+
+Battle Approach:
+1. A player can choose to Atk, Def, Run
+
+Boss Attribute:
+1. ATK
+2. HP
+3. Drop items (sword, horn, etc.)
+
+Boss Abilities:
+1. ATK
+2. DEF
+
+Forest:
+1. Diwata -> enemy -> enemy -> ending
+2. Kapri -> enemy -> enemy -> ending
+
+Data Sets:
+1. Player: Variables
+2. Enemies: Dict
+
+Files:
+1. Player data.txt
+2. World data.txt

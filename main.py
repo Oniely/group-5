@@ -154,17 +154,7 @@ def swamp():
             print("Invalid command. Please try again.")
 
 def mountain():
-    while True:
-        print("\n=== You are in the MOUNTAIN ===")
-        print("Press 'b' to battle an enemy or 'x' to exit the mountain.")
-        command = input("Enter command (b/x): ").lower()
-        if command == "x":
-            print("Exiting the mountain and returning to the Village...")
-            return
-        elif command == "b":
-            print("Mountain battle not implemented yet.")
-        else:
-            print("Invalid command. Please try again.")
+    print("Hello, World!")
 
 def display_player_hp():
     print(f"Player HP: {player.get('HP', 'Unknown')}")

@@ -1,4 +1,69 @@
 import random
+import os
+import json
+import time
+
+def save_player(player, filename="player_save.json"):
+    """Save player data to a JSON file."""
+    try:
+        with open(filename, 'w') as f:
+            json.dump(player, f, indent=4)
+        print(f"\nPlayer progress saved successfully!")
+        return True
+    except Exception as e:
+        print(f"\nError saving player progress: {e}")
+        return False
+
+def load_player(filename="player_save.json"):
+    """Load player data from a JSON file."""
+    try:
+        with open(filename, 'r') as f:
+            player = json.load(f)
+        print(f"\nPlayer progress loaded successfully!")
+        return player
+    except FileNotFoundError:
+        print("\nNo saved player data found. Starting new game...")
+        return None
+    except Exception as e:
+        print(f"\nError loading player progress: {e}")
+        return None
+
+def save_world(world_state, filename="world_save.json"):
+    """Save world progress to a JSON file."""
+    try:
+        with open(filename, 'w') as f:
+            json.dump(world_state, f, indent=4)
+        print(f"World progress saved successfully!")
+        return True
+    except Exception as e:
+        print(f"Error saving world progress: {e}")
+        return False
+
+def load_world(filename="world_save.json"):
+    """Load world progress from a JSON file."""
+    try:
+        with open(filename, 'r') as f:
+            world_state = json.load(f)
+        print(f"World progress loaded successfully!")
+        return world_state
+    except FileNotFoundError:
+        # Initialize new world state
+        return {
+            "defeated_enemies": {},  # Format: {"area": ["enemy1", "enemy2", ...]}
+            "visited_areas": []
+        }
+    except Exception as e:
+        print(f"Error loading world progress: {e}")
+        return None
+
+def update_world_state(world_state, area, enemy_name):
+    """Update world state when an enemy is defeated."""
+    if area not in world_state["defeated_enemies"]:
+        world_state["defeated_enemies"][area] = []
+    world_state["defeated_enemies"][area].append(enemy_name)
+    
+    if area not in world_state["visited_areas"]:
+        world_state["visited_areas"].append(area)
 
 def open_inventory(player):
     """Displays and manages the player's inventory."""
@@ -85,9 +150,9 @@ def open_inventory(player):
 def choose_class():
     """Player selects a class. Default inventory and equipment are assigned based on class."""
     classes = {
-        "1": {"class": "Wizard", "HP": 12.0, "ATK": 8.0, "DEF": 4.0},
-        "2": {"class": "Swordsman", "HP": 15.0, "ATK": 10.0, "DEF": 6.0},
-        "3": {"class": "Ranger", "HP": 13.0, "ATK": 9.0, "DEF": 5.0}
+        "1": {"class": "Wizard", "HP": 12.0, "ATK": 12.0, "DEF": 4.0},
+        "2": {"class": "Swordsman", "HP": 15.0, "ATK": 9.0, "DEF": 6.0},
+        "3": {"class": "Ranger", "HP": 13.0, "ATK": 10.0, "DEF": 5.0}
     }
     
     while True:
@@ -115,8 +180,10 @@ def choose_class():
             return player
         else:
             print("Invalid choice. Please select a valid class.")
+            
+        input("Press Enter to continue...")
 
-def choose_location(player):
+def choose_location(player, world_state):
     """Player chooses an area from Spring Village. The inventory is accessible here too."""
     locations = {
         "1": "Forest",
@@ -133,16 +200,24 @@ def choose_location(player):
         print("3. Mountains")
         print("4. Swamp")
         print("5. Open Inventory")
+        print("6. Exit Game")
         choice = input("Enter the number of your destination: ")
         
         if choice in locations:
             return locations[choice]
         elif choice == "5":
             open_inventory(player)
+        elif choice == "6":
+            print("Exiting Game...")
+            time.sleep(1)
+            print("Saved Game Progress Automatically.")
+            save_player(player)
+            save_world(world_state)
+            exit()
         else:
             print("Invalid choice. Please select a valid option.")
 
-def encounter_enemies(area):
+def encounter_enemies(area, world_state):
     """Randomly selects an enemy for the given area."""
     enemies = {
         "Forest": [
@@ -168,7 +243,17 @@ def encounter_enemies(area):
     }
     
     if area in enemies:
-        enemy = random.choice(enemies[area])
+    # Filter out defeated enemies
+        available_enemies = [
+            enemy for enemy in enemies[area]
+            if enemy["name"] not in world_state["defeated_enemies"].get(area, [])
+        ]
+        
+        if not available_enemies:
+            print(f"\nNo more enemies remain in the {area}!")
+            return None
+            
+        enemy = random.choice(available_enemies)
         print(f"\nWhile in the {area}, you encounter a {enemy['name']}!")
         print(f"Enemy Stats -> HP: {enemy['HP']:.1f}, ATK: {enemy['ATK']:.1f}, DEF: {enemy['DEF']:.1f}")
         return enemy
@@ -176,7 +261,7 @@ def encounter_enemies(area):
         print(f"\nThere are no enemies in the {area}.")
         return None
 
-def battle(player, enemy):
+def battle(player, enemy, world_state, area):
     """Battle loop where the player can attack, defend, run, or access inventory."""
     print(f"\nBattle Start! You vs. {enemy['name']}")
     while player["HP"] > 0 and enemy["HP"] > 0:
@@ -191,40 +276,65 @@ def battle(player, enemy):
         if action == "1":
             # Calculate player's total attack (base ATK + equipped weapon bonus).
             weapon_bonus = player["equipped_weapon"]["ATK"] if player.get("equipped_weapon") else 0.0
-            base_attack = player["ATK"] + weapon_bonus
-            dice_roll = random.randint(1, 6)
-            multiplier = dice_roll * 0.1  # E.g., dice roll 5 => 0.5 multiplier.
-            damage = base_attack + (base_attack * multiplier)
-            print(f"\nYou attack with a dice roll of {dice_roll} (multiplier {multiplier:.1f}), dealing {damage:.1f} damage!")
-            enemy["HP"] -= damage
+            
+            raw_damage, damage_reduction, final_damage, dice_roll = calculate_damage(
+                player, enemy, weapon_bonus
+            )
+            
+            print(f"\nYou attack with a dice roll of {dice_roll}!")
+            print(f"Raw damage: {raw_damage:.1f}")
+            print(f"Enemy defense reduces damage by {damage_reduction:.1f}")
+            print(f"Final damage dealt: {final_damage:.1f}")
+            
+            enemy["HP"] -= final_damage
             
             if enemy["HP"] <= 0:
                 print(f"You have defeated the {enemy['name']}!")
+                update_world_state(world_state, area, enemy["name"])
+                save_world(world_state)
+                save_player(player)
                 break
             
             # Enemy counterattack.
-            enemy_dice = random.randint(1, 6)
-            enemy_multiplier = enemy_dice * 0.1
-            enemy_damage = enemy["ATK"] + (enemy["ATK"] * enemy_multiplier)
-            print(f"The {enemy['name']} counterattacks with a dice roll of {enemy_dice} (multiplier {enemy_multiplier:.1f}), dealing {enemy_damage:.1f} damage!")
-            player["HP"] -= enemy_damage
+            raw_damage, damage_reduction, final_damage, dice_roll = calculate_damage(
+                enemy, player
+            )
+            print(f"\nThe {enemy['name']} counterattacks with a dice roll of {dice_roll}!")
+            print(f"Raw damage: {raw_damage:.1f}")
+            print(f"Your defense reduces damage by {damage_reduction:.1f}")
+            print(f"Final damage taken: {final_damage:.1f}")
+            
+            player["HP"] -= final_damage
             
             if player["HP"] <= 0:
                 print("You have been defeated!")
+                save_world(world_state)
+                save_player(player)
                 break
 
         elif action == "2":
-            print("\nYou brace for the enemy's attack!")
-            enemy_dice = random.randint(1, 6)
-            enemy_multiplier = enemy_dice * 0.1
-            enemy_damage = enemy["ATK"] + (enemy["ATK"] * enemy_multiplier)
-            damage_reduction = enemy_damage * (player["DEF"] / 10)
-            effective_damage = enemy_damage - damage_reduction
-            print(f"The {enemy['name']} attacks with a dice roll of {enemy_dice} (multiplier {enemy_multiplier:.1f}), dealing {enemy_damage:.1f} damage!")
-            print(f"Your defense reduces the damage by {damage_reduction:.1f}, so you take {effective_damage:.1f} damage!")
-            player["HP"] -= effective_damage
+            temp_def_bonus = player["DEF"] * 0.5
+            player["DEF"] += temp_def_bonus
+            
+            print("\nYou brace for the enemy's attack! Defense increased by 50%!")
+            
+            raw_damage, damage_reduction, final_damage, dice_roll = calculate_damage(
+                enemy, player
+            )
+            
+            print(f"The {enemy['name']} attacks with a dice roll of {dice_roll}!")
+            print(f"Raw damage: {raw_damage:.1f}")
+            print(f"Your enhanced defense reduces damage by {damage_reduction:.1f}")
+            print(f"Final damage taken: {final_damage:.1f}")
+            
+            player["HP"] -= final_damage
+            
+            # Remove temporary defense bonus
+            player["DEF"] -= temp_def_bonus
             
             if player["HP"] <= 0:
+                save_world(world_state)
+                save_player(player)
                 print("You have been defeated!")
                 break
 
@@ -232,23 +342,61 @@ def battle(player, enemy):
             run_chance = random.random()
             if run_chance > 0.5:
                 print("\nYou successfully escaped the battle!")
+                save_world(world_state)
+                save_player(player)
                 break
             else:
                 print("\nEscape failed! The battle continues.")
-                enemy_dice = random.randint(1, 6)
-                enemy_multiplier = enemy_dice * 0.1
-                enemy_damage = enemy["ATK"] + (enemy["ATK"] * enemy_multiplier)
-                print(f"As you try to flee, the {enemy['name']} attacks, dealing {enemy_damage:.1f} damage!")
-                player["HP"] -= enemy_damage
+                raw_damage, damage_reduction, final_damage, dice_roll = calculate_damage(
+                    enemy, player
+                )
+                print(f"As you try to flee, the {enemy['name']} attacks!")
+                print(f"You take {final_damage:.1f} damage!")
+                player["HP"] -= final_damage
                 if player["HP"] <= 0:
                     print("You have been defeated!")
+                    save_world(world_state)
+                    save_player(player)
                     break
         elif action == "4":
             open_inventory(player)
         else:
             print("\nInvalid action. Please choose again.")
 
-def area_loop(player, area):
+def calculate_damage(attacker, defender, weapon_bonus=0.0):
+    """
+    Calculate damage dealt by attacker to defender, factoring in:
+    - Base attack + weapon bonus
+    - Dice roll multiplier
+    - Defense reduction
+    
+    Args:
+        attacker (dict): Entity dealing damage with ATK stat
+        defender (dict): Entity receiving damage with DEF stat
+        weapon_bonus (float): Additional attack bonus from equipped weapon
+    
+    Returns:
+        tuple: (raw_damage, damage_reduction, final_damage)
+    """
+    # Calculate base damage with weapon bonus if applicable
+    base_attack = attacker["ATK"] + weapon_bonus
+    
+    # Roll dice for damage multiplier (1-6 → 0.1-0.6 multiplier)
+    dice_roll = random.randint(1, 6)
+    multiplier = dice_roll * 0.1
+    
+    # Calculate raw damage before defense
+    raw_damage = base_attack + (base_attack * multiplier)
+    
+    # Calculate damage reduction from defense (each point of DEF reduces damage by 10%)
+    damage_reduction = raw_damage * (defender["DEF"] / 10)
+    
+    # Calculate final damage after defense reduction
+    final_damage = max(0, raw_damage - damage_reduction)
+    
+    return raw_damage, damage_reduction, final_damage, dice_roll
+
+def area_loop(player, area, world_state):
     """
     In an area, there's a 30% chance for an immediate enemy encounter.
     If no enemy appears, the player may choose to:
@@ -266,9 +414,9 @@ def area_loop(player, area):
         # 30% chance for an immediate enemy encounter.
         if random.random() < 0.3:
             print("\nAn enemy appears out of nowhere!")
-            enemy = encounter_enemies(area)
+            enemy = encounter_enemies(area, world_state)
             if enemy:
-                battle(player, enemy)
+                battle(player, enemy, world_state, area)
                 if player["HP"] <= 0:
                     break
                 continue  # After battle, re-check the area.
@@ -282,9 +430,9 @@ def area_loop(player, area):
             choice = input("Enter the number of your action: ")
             
             if choice == "1":
-                enemy = encounter_enemies(area)
+                enemy = encounter_enemies(area, world_state)
                 if enemy:
-                    battle(player, enemy)
+                    battle(player, enemy, world_state, area)
                     if player["HP"] <= 0:
                         break
                     continue  # Return to area options after battle.
@@ -301,20 +449,44 @@ def area_loop(player, area):
             else:
                 print("Invalid choice. Please choose again.")
 
+def clear_terminal():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
 def main():
     print("Welcome to the Text-Adventure RPG!")
     
     # Choose player class and set up default inventory.
-    player = choose_class()
+    player = load_player()
+    if player is None:
+        # If no save exists, create new player
+        player = choose_class()
+        save_player(player)
+    
+    world_state = load_world()
+        
     print(f"\nYou have chosen {player['class']} with stats:")
     print(f"HP: {player['HP']:.1f}, ATK: {player['ATK']:.1f}, DEF: {player['DEF']:.1f}")
     
-    # Village: choose destination or access inventory.
-    destination = choose_location(player)
-    print(f"\nYou leave Spring Village and head towards the {destination}.")
-    
-    # Begin area exploration loop.
-    area_loop(player, destination)
+    while True:
+        if player["HP"] <= 0:
+            print("\nGame Over! You have no HP Left!")
+            # Option to delete save and start new game
+            if input("Start new game? (y/n): ").lower() == 'y':
+                os.remove("player_save.json")
+                os.remove("world_save.json")
+                print("Save files deleted. Restart the game to begin anew.")
+            break
+        
+        # Village: choose destination or access inventory
+        destination = choose_location(player, world_state)
+        print(f"\nYou leave Spring Village and head towards the {destination}.")
+        
+        # Begin area exploration loop
+        area_loop(player, destination, world_state)
+        
+        # Auto-save after returning to village
+        save_player(player)
+        save_world(world_state)
     
     print("\nThank you for playing!")
 

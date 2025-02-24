@@ -1,0 +1,2 @@
+
+            player = classes[choice]

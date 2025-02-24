@@ -1,29 +1,74 @@
 {
-	"class": "Wizard",
-	"HP": 15.010000000000002,
-	"ATK": 100.0,
-	"DEF": 4.0,
-	"max_HP": 20.0,
-	"inventory": {
-		"weapons": [
-			{
-				"name": "Basic Staff",
-				"ATK": 2.0
-			},
-			{
-				"name": "Poison Blade",
-				"ATK": 4.0
-			},
-			{
-				"name": "Wooden Sword",
-				"ATK": 2.5
-			}
-		],
-		"items": []
-	},
-	"equipped_weapon": {
-		"name": "Poison Blade",
-		"ATK": 4.0
-	},
-	"gold": 100
+    "class": "Swordsman",
+    "HP": 55.0,
+    "ATK": 106.0,
+    "DEF": 12.0,
+    "LVL": 7,
+    "EXP": 300,
+    "max_HP": 55.0,
+    "inventory": {
+        "weapons": [
+            {
+                "name": "Basic Sword",
+                "ATK": 2.0
+            },
+            {
+                "name": "Hoof Blade",
+                "ATK": 3.5
+            },
+            {
+                "name": "Sonic Blade",
+                "ATK": 2.5
+            },
+            {
+                "name": "Ancient Sword",
+                "ATK": 3.0
+            },
+            {
+                "name": "Goblin Sword",
+                "ATK": 3.0
+            },
+            {
+                "name": "Nature Staff",
+                "ATK": 3.0
+            },
+            {
+                "name": "Hoof Blade",
+                "ATK": 3.5
+            }
+        ],
+        "items": [
+            {
+                "name": "Small Potion",
+                "heal": 0.25
+            },
+            {
+                "name": "Health Potion",
+                "heal": 0.5
+            },
+            {
+                "name": "Healing Herb"
+            },
+            {
+                "name": "Mystic Acorn"
+            },
+            {
+                "name": "Forest Boss Trophy"
+            },
+            {
+                "name": "Mystic Acorn"
+            },
+            {
+                "name": "Cave Boss Trophy"
+            },
+            {
+                "name": "Forest Boss Trophy"
+            }
+        ]
+    },
+    "equipped_weapon": {
+        "name": "Basic Sword",
+        "ATK": 2.0
+    },
+    "gold": 100
 }

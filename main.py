@@ -2,7 +2,23 @@ import random
 import os
 import json
 import time
+from rich.table import Table
+from rich.console import Console
+from merchant import talk_to_merchant
 
+console = Console()
+table_menu = Table(show_header=True, header_style="bold magenta")
+
+table_menu.add_column("Action", style="dim", width=16)
+table_menu.add_column("Input", justify="center")
+
+table_menu.add_row("Go to Forest", "1")
+table_menu.add_row("Go to Cave", "2")
+table_menu.add_row("Go to Mountains", "3")
+table_menu.add_row("Go to Swamp", "4")
+table_menu.add_row("Talk to Merchant", "5")
+table_menu.add_row("Open Inventory", "6")
+table_menu.add_row("Exit Game", "7")
 
 #these are functions for the buy and sell shop
 def buy_item(player):
@@ -157,9 +173,10 @@ def update_world_state(world_state, area, enemy_name):
     if area not in world_state["visited_areas"]:
         world_state["visited_areas"].append(area)
 
+# (Optional) Update open_inventory so that it no longer shows buy/sell options when in the village:
 def open_inventory(player, in_village=False):
     """Displays and manages the player's inventory.
-    If in_village is True, includes options for buying and selling items/weapons."""
+    When in_village is True, only non-shop options are provided since buying/selling are handled by the Merchant."""
     print("\n--- Inventory ---")
     
     # Display player's gold.
@@ -190,21 +207,12 @@ def open_inventory(player, in_village=False):
     else:
         print("No items in inventory.")
     
-    # Display options based on location.
-    if in_village:
-        print("\nInventory Options:")
-        print("1. Equip a weapon")
-        print("2. Use an item")
-        print("3. Search Inventory")
-        print("4. Buy items/weapons")
-        print("5. Sell items/weapons")
-        print("6. Exit Inventory")
-    else:
-        print("\nInventory Options:")
-        print("1. Equip a weapon")
-        print("2. Use an item")
-        print("3. Search Inventory")
-        print("4. Exit Inventory")
+    # Provide a simple inventory management menu (without buy/sell options)
+    print("\nInventory Options:")
+    print("1. Equip a weapon")
+    print("2. Use an item")
+    print("3. Search Inventory")
+    print("4. Exit Inventory")
     
     choice = input("\nEnter your choice: ")
     
@@ -239,13 +247,12 @@ def open_inventory(player, in_village=False):
                     print("Invalid selection. Exiting inventory.")
                 else:
                     item = items.pop(idx)  # Remove the item from inventory once used.
+                    # (Use similar item effects as before)
                     if item["name"] == "Small Potion":
                         heal_amount = player["max_HP"] * item['heal']
                         old_hp = player["HP"]
                         player["HP"] = min(player["HP"] + heal_amount, player["max_HP"])
                         print(f"You used a Small Potion and restored {player['HP'] - old_hp:.1f} HP. Current HP: {player['HP']:.1f}")
-                    elif item["name"] == "Bomb":
-                        print("You throw a Bomb! (Bomb effect not implemented yet.)")
                     elif item["name"] == "Health Potion":
                         heal_amount = player["max_HP"] * item['heal']
                         old_hp = player["HP"]
@@ -253,21 +260,16 @@ def open_inventory(player, in_village=False):
                         print(f"You used a Health Potion and restored {player['HP'] - old_hp:.1f} HP. Current HP: {player['HP']:.1f}")
                     else:
                         print("Item effect not implemented.")
-                        
+                    
                     save_player(player)
                     
             except ValueError:
                 print("Invalid input. Exiting inventory.")
         else:
             print("No items available to use.")
-    elif choice == "3": 
+    elif choice == "3":
         search_inventory(player)
-    # Only show buy/sell options if the player is in the village.
-    elif in_village and choice == "4":
-        buy_item(player)
-    elif in_village and choice == "5":
-        sell_item(player)
-    elif (in_village and choice == "6") or (not in_village and choice == "4"):
+    elif choice == "4":
         print("Exiting inventory.")
     else:
         print("Invalid choice. Exiting inventory.")
@@ -396,21 +398,18 @@ def choose_location(player, world_state):
     
     while True:
         print("\nWelcome to Spring Village!")
-        print("Where would you like to go?")
-        print("1. Forest")
-        print("2. Cave")
-        print("3. Mountains")
-        print("4. Swamp")
-        print("5. Open Inventory")
-        print("6. Exit Game")
-        choice = input("Enter the number of your destination: ")
+        print("What would you like to do?")
+        console.print(table_menu)
+        choice = input("Enter action input: ")
         
         if choice in locations:
             return locations[choice]
         elif choice == "5":
-            # In the village, allow buying and selling.
-            open_inventory(player, in_village=True)
+            # Call the Merchant conversation from the imported module.
+            talk_to_merchant(player)
         elif choice == "6":
+            open_inventory(player, in_village=True)
+        elif choice == "7":
             print("Exiting Game...")
             time.sleep(1)
             print("Saved Game Progress Automatically.")

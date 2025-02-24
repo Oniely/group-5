@@ -1,10 +1,10 @@
 {
     "defeated_enemies": {
-        "Cave": [
-            "Goblin"
+        "Forest": [
+            "Tikbalang"
         ]
     },
     "visited_areas": [
-        "Cave"
+        "Forest"
     ]
 }

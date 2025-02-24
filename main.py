@@ -3,6 +3,94 @@ import os
 import json
 import time
 
+
+#these are functions for the buy and sell shop
+def buy_item(player):
+    """Allows the player to buy items or weapons using gold."""
+    shop_items = [
+        {"name": "Iron Sword", "ATK": 5.0, "cost": 50, "type": "weapon"},
+        {"name": "Health Potion", "heal": 25, "cost": 30, "type": "item"}
+    ]
+    print("\n--- Shop ---")
+    print(f"Gold: {player.get('gold', 0)}")
+    for i, item in enumerate(shop_items, start=1):
+        if item["type"] == "weapon":
+            print(f"{i}. {item['name']} (ATK bonus: {item['ATK']:.1f}) - Cost: {item['cost']} gold")
+        else:
+            print(f"{i}. {item['name']} - Cost: {item['cost']} gold")
+    
+    choice = input("Enter the number of the item to buy (or press Enter to cancel): ")
+    if choice.strip() == "":
+        print("Purchase cancelled.")
+        return
+    try:
+        idx = int(choice) - 1
+        if idx < 0 or idx >= len(shop_items):
+            print("Invalid selection.")
+            return
+        selected = shop_items[idx]
+        if player["gold"] >= selected["cost"]:
+            player["gold"] -= selected["cost"]
+            if selected["type"] == "weapon":
+                player["inventory"]["weapons"].append({"name": selected["name"], "ATK": selected["ATK"]})
+            elif selected["type"] == "item":
+                player["inventory"]["items"].append({"name": selected["name"]})
+            print(f"Purchased {selected['name']}!")
+        else:
+            print("Not enough gold!")
+    except ValueError:
+        print("Invalid input.")
+
+def sell_item(player):
+    """Allows the player to sell items or weapons for gold."""
+    print("\n--- Sell Items ---")
+    print(f"Gold: {player.get('gold', 0)}")
+    print("Choose what you want to sell:")
+    print("1. Weapon")
+    print("2. Item")
+    choice = input("Enter your choice: ")
+    
+    if choice == "1":
+        weapons = player["inventory"]["weapons"]
+        if not weapons:
+            print("No weapons available to sell.")
+            return
+        print("Select a weapon to sell:")
+        for i, weapon in enumerate(weapons, start=1):
+            print(f"{i}. {weapon['name']} - Sell Price: 10 gold")
+        selection = input("Enter the number of the weapon to sell: ")
+        try:
+            idx = int(selection) - 1
+            if idx < 0 or idx >= len(weapons):
+                print("Invalid selection.")
+            else:
+                sold_weapon = weapons.pop(idx)
+                player["gold"] += 10
+                print(f"Sold {sold_weapon['name']} for 10 gold.")
+        except ValueError:
+            print("Invalid input.")
+    elif choice == "2":
+        items = player["inventory"]["items"]
+        if not items:
+            print("No items available to sell.")
+            return
+        print("Select an item to sell:")
+        for i, item in enumerate(items, start=1):
+            print(f"{i}. {item['name']} - Sell Price: 5 gold")
+        selection = input("Enter the number of the item to sell: ")
+        try:
+            idx = int(selection) - 1
+            if idx < 0 or idx >= len(items):
+                print("Invalid selection.")
+            else:
+                sold_item = items.pop(idx)
+                player["gold"] += 5
+                print(f"Sold {sold_item['name']} for 5 gold.")
+        except ValueError:
+            print("Invalid input.")
+    else:
+        print("Invalid choice.")
+
 def save_player(player, filename="player_save.json"):
     """Save player data to a JSON file."""
     try:
@@ -19,6 +107,9 @@ def load_player(filename="player_save.json"):
     try:
         with open(filename, 'r') as f:
             player = json.load(f)
+        # Ensure the player has a gold key, add default if missing.
+        if "gold" not in player:
+            player["gold"] = 100  # or another default value
         print(f"\nPlayer progress loaded successfully!")
         return player
     except FileNotFoundError:
@@ -27,6 +118,7 @@ def load_player(filename="player_save.json"):
     except Exception as e:
         print(f"\nError loading player progress: {e}")
         return None
+
 
 def save_world(world_state, filename="world_save.json"):
     """Save world progress to a JSON file."""
@@ -65,9 +157,13 @@ def update_world_state(world_state, area, enemy_name):
     if area not in world_state["visited_areas"]:
         world_state["visited_areas"].append(area)
 
-def open_inventory(player):
-    """Displays and manages the player's inventory."""
+def open_inventory(player, in_village=False):
+    """Displays and manages the player's inventory.
+    If in_village is True, includes options for buying and selling items/weapons."""
     print("\n--- Inventory ---")
+    
+    # Display player's gold.
+    print(f"Gold: {player.get('gold', 0)}")
     
     # Display equipped weapon.
     equipped = player.get("equipped_weapon")
@@ -94,10 +190,20 @@ def open_inventory(player):
     else:
         print("No items in inventory.")
     
-    print("\nInventory Options:")
-    print("1. Equip a weapon")
-    print("2. Use an item")
-    print("3. Exit Inventory")
+    # Display options based on location.
+    if in_village:
+        print("\nInventory Options:")
+        print("1. Equip a weapon")
+        print("2. Use an item")
+        print("3. Buy items/weapons")
+        print("4. Sell items/weapons")
+        print("5. Exit Inventory")
+    else:
+        print("\nInventory Options:")
+        print("1. Equip a weapon")
+        print("2. Use an item")
+        print("3. Exit Inventory")
+    
     choice = input("Enter your choice: ")
     
     if choice == "1":
@@ -117,6 +223,7 @@ def open_inventory(player):
                 print("Invalid input. Exiting inventory.")
         else:
             print("No weapons available to equip.")
+    
     elif choice == "2":
         if items:
             print("\nSelect an item to use:")
@@ -136,19 +243,31 @@ def open_inventory(player):
                         print(f"You used a Small Potion and restored {player['HP'] - old_hp:.1f} HP. Current HP: {player['HP']:.1f}")
                     elif item["name"] == "Bomb":
                         print("You throw a Bomb! (Bomb effect not implemented yet.)")
+                    elif item["name"] == "Health Potion":
+                        heal_amount = player["max_HP"] * 0.50
+                        old_hp = player["HP"]
+                        player["HP"] = min(player["HP"] + heal_amount, player["max_HP"])
+                        print(f"You used a Health Potion and restored {player['HP'] - old_hp:.1f} HP. Current HP: {player['HP']:.1f}")
                     else:
                         print("Item effect not implemented.")
             except ValueError:
                 print("Invalid input. Exiting inventory.")
         else:
             print("No items available to use.")
-    elif choice == "3":
+    
+    # Only show buy/sell options if the player is in the village.
+    elif in_village and choice == "3":
+        buy_item(player)
+    elif in_village and choice == "4":
+        sell_item(player)
+    elif (in_village and choice == "5") or (not in_village and choice == "3"):
         print("Exiting inventory.")
     else:
         print("Invalid choice. Exiting inventory.")
 
+
 def choose_class():
-    """Player selects a class. Default inventory and equipment are assigned based on class."""
+    """Player selects a class. Default inventory, equipment, and gold are assigned based on class."""
     classes = {
         "1": {"class": "Wizard", "HP": 12.0, "ATK": 12.0, "DEF": 4.0},
         "2": {"class": "Swordsman", "HP": 15.0, "ATK": 9.0, "DEF": 6.0},
@@ -177,11 +296,14 @@ def choose_class():
                 "items": [{"name": "Small Potion"}]
             }
             player["equipped_weapon"] = default_weapon
+            # Initialize player's gold
+            player["gold"] = 100  
             return player
         else:
             print("Invalid choice. Please select a valid class.")
             
         input("Press Enter to continue...")
+
 
 def choose_location(player, world_state):
     """Player chooses an area from Spring Village. The inventory is accessible here too."""
@@ -206,7 +328,8 @@ def choose_location(player, world_state):
         if choice in locations:
             return locations[choice]
         elif choice == "5":
-            open_inventory(player)
+            # In the village, allow buying and selling.
+            open_inventory(player, in_village=True)
         elif choice == "6":
             print("Exiting Game...")
             time.sleep(1)
@@ -216,6 +339,7 @@ def choose_location(player, world_state):
             exit()
         else:
             print("Invalid choice. Please select a valid option.")
+
 
 def encounter_enemies(area, world_state):
     """Randomly selects an enemy for the given area."""
@@ -403,7 +527,7 @@ def area_loop(player, area, world_state):
       1. Explore further (guaranteed enemy encounter)
       2. Sleep (restore 25% of max HP)
       3. Return to Village
-      4. Open Inventory
+      4. Open Inventory (without shop options)
     After defeating an enemy, the options reappear.
     """
     while True:
@@ -411,7 +535,6 @@ def area_loop(player, area, world_state):
             print("You have no HP left. Game Over!")
             break
 
-        # 30% chance for an immediate enemy encounter.
         if random.random() < 0.3:
             print("\nAn enemy appears out of nowhere!")
             enemy = encounter_enemies(area, world_state)
@@ -419,7 +542,7 @@ def area_loop(player, area, world_state):
                 battle(player, enemy, world_state, area)
                 if player["HP"] <= 0:
                     break
-                continue  # After battle, re-check the area.
+                continue
         else:
             print(f"\nYou are in the {area} without any immediate threats.")
             print("What would you like to do?")
@@ -435,7 +558,7 @@ def area_loop(player, area, world_state):
                     battle(player, enemy, world_state, area)
                     if player["HP"] <= 0:
                         break
-                    continue  # Return to area options after battle.
+                    continue
             elif choice == "2":
                 heal_amount = player["max_HP"] * 0.25
                 old_hp = player["HP"]
@@ -445,9 +568,11 @@ def area_loop(player, area, world_state):
                 print("\nYou return to Spring Village.")
                 break
             elif choice == "4":
-                open_inventory(player)
+                # Outside the village, call open_inventory without shop options.
+                open_inventory(player, in_village=False)
             else:
                 print("Invalid choice. Please choose again.")
+
 
 def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')

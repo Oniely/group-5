@@ -11,15 +11,11 @@
                 "ATK": 2.0
             }
         ],
-        "items": [
-            {
-                "name": "Small Potion"
-            }
-        ]
+        "items": []
     },
     "equipped_weapon": {
         "name": "Basic Sword",
         "ATK": 2.0
     },
-    "gold": 70
+    "gold": 75
 }

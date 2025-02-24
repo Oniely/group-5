@@ -365,7 +365,15 @@ def choose_class():
                 default_weapon = {"name": "Basic Bow", "ATK": 2.0}
             player["inventory"] = {
                 "weapons": [default_weapon],
-                "items": [{"name": "Small Potion"}]
+                "items": [{
+                        "name": "Small Potion",
+                        "heal": 0.25,
+                    }, 
+                    {
+                        "name": "Health Potion",
+                        "heal": 0.5
+                    }
+                ]
             }
             player["equipped_weapon"] = default_weapon
             # Initialize player's gold
@@ -639,6 +647,15 @@ def battle(player, enemy, world_state, area):
                 display_battle_screen(player, enemy)
                 print(f"\nThe {enemy['name']} has been defeated!")
                 update_world_state(world_state, area, enemy["name"])
+                
+                drop = random.choice(enemy["DROPS"])
+                if drop["type"] == "weapon":
+                    player["inventory"]["weapons"].append({"name": drop["name"], "ATK": drop["ATK"]})
+                    print(f"\nThe enemy dropped a {drop['name']} (Weapon, ATK: {drop['ATK']})!")
+                else:
+                    player["inventory"]["items"].append({"name": drop["name"]})
+                    print(f"\nThe enemy dropped a {drop['name']} (Item)!")
+                
                 save_world(world_state)
                 save_player(player)
                 time.sleep(2)

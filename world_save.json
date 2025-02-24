@@ -1,10 +1,7 @@
 {
-    "defeated_enemies": {
-        "Swamp": [
-            "Swamp Beast"
-        ]
-    },
-    "visited_areas": [
-        "Swamp"
-    ]
+	"defeated_enemies": {
+		"Swamp": ["Swamp Beast"],
+		"Forest": ["Big Boss", "Kapri"]
+	},
+	"visited_areas": ["Swamp", "Forest"]
 }

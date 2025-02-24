@@ -42,7 +42,7 @@ Legend:
 14. Game Over - 🟥🟥
     What happens after a game over? Will a the game reset and the user have to pick a new class all over again? 
 
-15. Search
+15. Search - ✅
     Search weapons/items
     1. search from inventory
     - potion

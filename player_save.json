@@ -1,0 +1,24 @@
+{
+	"class": "Wizard",
+	"HP": 12.0,
+	"ATK": 12.0,
+	"DEF": 4.0,
+	"max_HP": 12.0,
+	"inventory": {
+		"weapons": [
+			{
+				"name": "Basic Staff",
+				"ATK": 2.0
+			}
+		],
+		"items": [
+			{
+				"name": "Small Potion"
+			}
+		]
+	},
+	"equipped_weapon": {
+		"name": "Basic Staff",
+		"ATK": 2.0
+	}
+}

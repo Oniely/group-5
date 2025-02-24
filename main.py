@@ -342,7 +342,8 @@ def choose_location(player, world_state):
 
 
 def encounter_enemies(area, world_state):
-    """Randomly selects an enemy for the given area."""
+    """Randomly selects an enemy for the given area, including bosses if conditions are met."""
+    # Regular enemies by area
     enemies = {
         "Forest": [
             {"name": "Diwata", "HP": 18.0, "ATK": 4.5, "DEF": 4.0, "DROPS": ["Healing Herb", "Enchanted Leaf"]},
@@ -365,10 +366,42 @@ def encounter_enemies(area, world_state):
             {"name": "Mud Monster", "HP": 22.0, "ATK": 4.0, "DEF": 6.0, "DROPS": ["Hardened Mud", "Dark Shard"]}
         ]
     }
-
     
+    # Bosses by area. Each boss includes a "trigger_kill_count" key to define when it should appear.
+    bosses = {
+        "Forest": [
+            {"name": "Big Boss", "HP": 50.0, "ATK": 8.0, "DEF": 5.0,
+             "DROPS": ["Boss Trophy"], "trigger_kill_count": 3}
+        ],
+        # Add bosses for other areas as needed:
+        "Mountains": [],
+        "Cave": [],
+        "Swamp": []
+    }
+    
+    # First, check if a boss should appear in this area.
+    if area in bosses and bosses[area]:
+        defeated_in_area = world_state["defeated_enemies"].get(area, [])
+        # Build a list of boss names for easier checking (using lowercase for case-insensitivity)
+        boss_names = [boss["name"].lower() for boss in bosses[area]]
+        # Count defeated enemies that are NOT bosses.
+        non_boss_defeated = [name for name in defeated_in_area if name.lower() not in boss_names]
+        boss_candidates = []
+        for boss in bosses[area]:
+            # Check if the boss hasn't been defeated and if the required kill count has been reached.
+            if boss["name"] not in defeated_in_area and len(non_boss_defeated) >= boss.get("trigger_kill_count", 3):
+                boss_candidates.append(boss)
+        if boss_candidates:
+            boss = random.choice(boss_candidates)
+            print(f"\nA mighty presence is felt... {boss['name']} appears!")
+            print(f"Enemy Stats -> HP: {boss['HP']:.1f}, ATK: {boss['ATK']:.1f}, DEF: {boss['DEF']:.1f}")
+            # Reset the non-boss kill count by removing non-boss enemy names from the list.
+            # This prevents the boss from re-triggering on subsequent encounters.
+            world_state["defeated_enemies"][area] = [name for name in defeated_in_area if name.lower() in boss_names]
+            return boss
+
+    # If no boss is triggered, proceed with normal enemy encounters.
     if area in enemies:
-    # Filter out defeated enemies
         available_enemies = [
             enemy for enemy in enemies[area]
             if enemy["name"] not in world_state["defeated_enemies"].get(area, [])
@@ -393,10 +426,27 @@ def display_battle_screen(player, enemy):
     print(f"Your {player['class']:<30} Enemy {enemy['name']}")
     print(f"HP: {player['HP']:.1f}/{player['max_HP']:.1f}{' '*20}HP: {enemy['HP']:.1f}/{enemy['max_HP']:.1f}")
     print("\n")
-    print(fr"   O    {' '*20}     /\___/\ ")
-    print(fr"  /|\   {' '*20}    (  o o  )")
-    print(fr"  / \   {' '*20}     >  ^  <")
+    
+    # Check if the enemy has custom ASCII art already
+    if "ascii_art" in enemy:
+        print(enemy["ascii_art"])
+    # If enemy is Diwata, use the custom ASCII art you provided
+    elif enemy["name"].lower() == "diwata":
+        print(fr"        {' '*20}         .==-.                .-==.   ")
+        print(fr"        {' '*20}       //`^\\\_    (\_/)    _///^`\\  ")
+        print(fr"        {' '*20}       //  ^  \\   (o.o)   //  ^  \\  ")
+        print(fr"        {' '*20}      / | ^ ^ | \  (> <) / | ^ ^ | \  ")
+        print(fr"   O    {' '*20}     /  |  ^  |  \      /  |  ^  |  \ ")
+        print(fr"  /|\   {' '*20}        \  ^  /            \  ^  /    ")
+        print(fr"  / \   {' '*20}         `---`              `---`     ")
+    # Otherwise, show the default enemy art
+    else:
+        print(fr"   O    {' '*20}     /\___/\ ")
+        print(fr"  /|\   {' '*20}    (  o o  )")
+        print(fr"  / \   {' '*20}     >  ^  <")
+    
     print("\n" + "="*60)
+
     
 def display_attack_animation(attacker_name, defender_name, damage, is_player):
     """Display attack animation with ASCII art"""
@@ -481,21 +531,29 @@ def battle(player, enemy, world_state, area):
                 display_battle_screen(player, enemy)
                 print(f"\nThe {enemy['name']} has been defeated!")
                 update_world_state(world_state, area, enemy["name"])
-                
-                
                 save_world(world_state)
                 save_player(player)
                 time.sleep(2)
                 break
             
-            # Enemy counterattack
-            raw_damage, damage_reduction, final_damage, dice_roll = calculate_damage(
-                enemy, player
-            )
-            
-            display_attack_animation(enemy["name"], player["class"], final_damage, False)
-            player["HP"] -= final_damage
-            
+            # Enemy counterattack (or boss action)
+            if enemy["name"].lower() == "big boss":
+                boss_action = random.choice(["attack", "heal"])
+                if boss_action == "attack":
+                    raw_damage, damage_reduction, final_damage, dice_roll = calculate_damage(enemy, player)
+                    display_attack_animation(enemy["name"], player["class"], final_damage, False)
+                    player["HP"] -= final_damage
+                else:  # Heal action
+                    heal_amount = enemy["max_HP"] * 0.2  # Boss heals 20% of max HP
+                    old_hp = enemy["HP"]
+                    enemy["HP"] = min(enemy["HP"] + heal_amount, enemy["max_HP"])
+                    print(f"\n{enemy['name']} uses Heal and recovers {enemy['HP'] - old_hp:.1f} HP!")
+                    time.sleep(1)
+            else:
+                raw_damage, damage_reduction, final_damage, dice_roll = calculate_damage(enemy, player)
+                display_attack_animation(enemy["name"], player["class"], final_damage, False)
+                player["HP"] -= final_damage
+
             if player["HP"] <= 0:
                 display_battle_screen(player, enemy)
                 print("\nYou have been defeated!")
@@ -510,10 +568,7 @@ def battle(player, enemy, world_state, area):
             
             display_defend_animation(player["class"])
             
-            raw_damage, damage_reduction, final_damage, dice_roll = calculate_damage(
-                enemy, player
-            )
-            
+            raw_damage, damage_reduction, final_damage, dice_roll = calculate_damage(enemy, player)
             display_attack_animation(enemy["name"], player["class"], final_damage, False)
             player["HP"] -= final_damage
             
@@ -537,9 +592,7 @@ def battle(player, enemy, world_state, area):
                 break
             else:
                 print("\nEscape failed! The battle continues.")
-                raw_damage, damage_reduction, final_damage, dice_roll = calculate_damage(
-                    enemy, player
-                )
+                raw_damage, damage_reduction, final_damage, dice_roll = calculate_damage(enemy, player)
                 print(f"As you try to flee, the {enemy['name']} attacks!")
                 print(f"You take {final_damage:.1f} damage!")
                 player["HP"] -= final_damage
@@ -556,6 +609,7 @@ def battle(player, enemy, world_state, area):
         else:
             print("\nInvalid action. Please choose again.")
             time.sleep(1)
+
 
 def calculate_damage(attacker, defender, weapon_bonus=0.0):
     """

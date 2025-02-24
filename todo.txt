@@ -9,7 +9,7 @@ Legend:
 
 3. Handling of Roll of dice when entering a path (to sleep or to not) - ✅Done
 
-4. Inventory CRUD (Create, Read, Update, Delete) - 🟥🟥🟥🟥
+4. Inventory CRUD (Create, Read, Update, Delete) - 🟥🟥
     What to do? The inventory lacks a "drop" or "discard" feature as well as "create" since a looting system has not yet been established. Ang ano pa gd gali mag buy and sell items pwede ta mn di ma implement tu ang gin tudlo ni miss bala sa quote2.
 
 5. Merchants/NPC - 🟥🟥
@@ -27,10 +27,10 @@ Legend:
 9. AI NPC - 🟥
     What to do? Just a simple chatbot NPC would be nice.
 
-10. Save Game - 🟥🟥🟥🟥
+10. Save Game - ✅
     What to do? Implement a save game system where the player can save their game and load it later.
 
-11. Load Game - 🟥🟥🟥🟥
+11. Load Game - ✅
     What to do? Implement a load game system where the player can load their saved game.
 
 12. World Persistence - 🟥🟥🟥🟥

@@ -1,19 +1,19 @@
-import time
-
 # The buying function, now part of the merchant module.
 def buy_item(player):
     shop_items = [
         {"name": "Iron Sword", "ATK": 5.0, "cost": 50, "type": "weapon"},
-        {"name": "Health Potion", "heal": 25, "cost": 30, "type": "item"}
+        {"name": "Health Potion", "heal": 25, "cost": 30, "type": "item"},
     ]
     print("\n--- Shop ---")
     print(f"Gold: {player.get('gold', 0)}")
     for i, item in enumerate(shop_items, start=1):
         if item["type"] == "weapon":
-            print(f"{i}. {item['name']} (ATK bonus: {item['ATK']:.1f}) - Cost: {item['cost']} gold")
+            print(
+                f"{i}. {item['name']} (ATK bonus: {item['ATK']:.1f}) - Cost: {item['cost']} gold"
+            )
         else:
             print(f"{i}. {item['name']} - Cost: {item['cost']} gold")
-    
+
     choice = input("Enter the number of the item to buy (or press Enter to cancel): ")
     if choice.strip() == "":
         print("Purchase cancelled.")
@@ -27,7 +27,9 @@ def buy_item(player):
         if player["gold"] >= selected["cost"]:
             player["gold"] -= selected["cost"]
             if selected["type"] == "weapon":
-                player["inventory"]["weapons"].append({"name": selected["name"], "ATK": selected["ATK"]})
+                player["inventory"]["weapons"].append(
+                    {"name": selected["name"], "ATK": selected["ATK"]}
+                )
             elif selected["type"] == "item":
                 player["inventory"]["items"].append({"name": selected["name"]})
             print(f"Purchased {selected['name']}!")
@@ -35,6 +37,7 @@ def buy_item(player):
             print("Not enough gold!")
     except ValueError:
         print("Invalid input.")
+
 
 # The selling function, now part of the merchant module.
 def sell_item(player):
@@ -44,7 +47,7 @@ def sell_item(player):
     print("1. Weapon")
     print("2. Item")
     choice = input("Enter your choice: ")
-    
+
     if choice == "1":
         weapons = player["inventory"]["weapons"]
         if not weapons:
@@ -86,6 +89,7 @@ def sell_item(player):
     else:
         print("Invalid choice.")
 
+
 # A simple chatbot conversation function for the merchant.
 def merchant_chat():
     print("\nMerchant Chat - type 'exit' to end chat.")
@@ -95,15 +99,20 @@ def merchant_chat():
             print("Merchant: Very well, let me know if you need anything else.")
             break
         if "job" in user_input.lower():
-            print("Merchant: I am a humble merchant, always seeking to trade goods with adventurers like you!")
+            print(
+                "Merchant: I am a humble merchant, always seeking to trade goods with adventurers like you!"
+            )
         elif "name" in user_input.lower():
-            print("Merchant: I go by Merchant, though some call me your friend in these parts.")
+            print(
+                "Merchant: I go by Merchant, though some call me your friend in these parts."
+            )
         elif "hello" in user_input.lower() or "hi" in user_input.lower():
             print("Merchant: Hello! How can I help you today?")
         elif "gold" in user_input.lower():
             print("Merchant: Gold is the coin of the realm – use it wisely!")
         else:
             print("Merchant: Hmm, interesting...")
+
 
 # The main function to talk to the Merchant.
 def talk_to_merchant(player):

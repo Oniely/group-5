@@ -1,9 +1,9 @@
 {
     "class": "Wizard",
-    "HP": 15.010000000000002,
-    "ATK": 100.0,
-    "DEF": 4.0,
-    "max_HP": 20.0,
+    "HP": 17.75,
+    "ATK": 101.0,
+    "DEF": 5.0,
+    "max_HP": 25.0,
     "inventory": {
         "weapons": [
             {
@@ -17,6 +17,10 @@
             {
                 "name": "Wooden Sword",
                 "ATK": 2.5
+            },
+            {
+                "name": "Nature Staff",
+                "ATK": 3.0
             }
         ],
         "items": [
@@ -29,5 +33,7 @@
         "name": "Poison Blade",
         "ATK": 4.0
     },
-    "gold": 70
+    "gold": 70,
+    "EXP": 0,
+    "LVL": 2
 }

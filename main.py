@@ -2,6 +2,23 @@ import random
 import os
 import json
 import time
+from rich.table import Table
+from rich.console import Console
+from merchant import talk_to_merchant
+
+console = Console()
+table_menu = Table(show_header=True, header_style="bold magenta")
+
+table_menu.add_column("Action", style="dim", width=16)
+table_menu.add_column("Input", justify="center")
+
+table_menu.add_row("Go to Forest", "1")
+table_menu.add_row("Go to Cave", "2")
+table_menu.add_row("Go to Mountains", "3")
+table_menu.add_row("Go to Swamp", "4")
+table_menu.add_row("Talk to Merchant", "5")
+table_menu.add_row("Open Inventory", "6")
+table_menu.add_row("Exit Game", "7")
 
 
 # these are functions for the buy and sell shop
@@ -430,21 +447,18 @@ def choose_location(player, world_state):
 
     while True:
         print("\nWelcome to Spring Village!")
-        print("Where would you like to go?")
-        print("1. Forest")
-        print("2. Cave")
-        print("3. Mountains")
-        print("4. Swamp")
-        print("5. Open Inventory")
-        print("6. Exit Game")
-        choice = input("Enter the number of your destination: ")
+        print("What would you like to do?")
+        console.print(table_menu)
+        choice = input("Enter action input: ")
 
         if choice in locations:
             return locations[choice]
         elif choice == "5":
-            # In the village, allow buying and selling.
-            open_inventory(player, in_village=True)
+            # Call the Merchant conversation from the imported module.
+            talk_to_merchant(player)
         elif choice == "6":
+            open_inventory(player, in_village=True)
+        elif choice == "7":
             print("Exiting Game...")
             time.sleep(1)
             print("Saved Game Progress Automatically.")
@@ -1133,6 +1147,7 @@ def main():
         save_world(world_state)
 
     print("\nThank you for playing!")
+
 
 if __name__ == "__main__":
     main()

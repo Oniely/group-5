@@ -150,9 +150,9 @@ def open_inventory(player):
 def choose_class():
     """Player selects a class. Default inventory and equipment are assigned based on class."""
     classes = {
-        "1": {"class": "Wizard", "HP": 12.0, "ATK": 12.0, "DEF": 4.0},
-        "2": {"class": "Swordsman", "HP": 15.0, "ATK": 9.0, "DEF": 6.0},
-        "3": {"class": "Ranger", "HP": 13.0, "ATK": 10.0, "DEF": 5.0}
+        "1": {"class": "Wizard", "HP": 20.0, "ATK": 6.0, "DEF": 4.0},
+        "2": {"class": "Swordsman", "HP": 25.0, "ATK": 5.0, "DEF": 6.0},
+        "3": {"class": "Ranger", "HP": 22.0, "ATK": 5.5, "DEF": 5.0}
     }
     
     while True:
@@ -221,26 +221,27 @@ def encounter_enemies(area, world_state):
     """Randomly selects an enemy for the given area."""
     enemies = {
         "Forest": [
-            {"name": "Diwata", "HP": 8.0, "ATK": 5.0, "DEF": 3.0},
-            {"name": "Kapri", "HP": 10.0, "ATK": 6.0, "DEF": 4.0},
-            {"name": "Tikbalang", "HP": 9.0, "ATK": 7.0, "DEF": 2.0}
+            {"name": "Diwata", "HP": 18.0, "ATK": 4.5, "DEF": 4.0, "DROPS": ["Healing Herb", "Enchanted Leaf"]},
+            {"name": "Kapri", "HP": 20.0, "ATK": 4.0, "DEF": 5.0, "DROPS": ["Mystic Acorn", "Wooden Charm"]},
+            {"name": "Tikbalang", "HP": 22.0, "ATK": 5.5, "DEF": 3.0, "DROPS": ["Hoof Pendant", "Lucky Feather"]}
         ],
         "Mountains": [
-            {"name": "Mananggal", "HP": 10.0, "ATK": 6.0, "DEF": 3.0},
-            {"name": "Tyanak", "HP": 8.0, "ATK": 7.0, "DEF": 3.0},
-            {"name": "Tik-tik", "HP": 9.0, "ATK": 5.0, "DEF": 4.0}
+            {"name": "Mananggal", "HP": 25.0, "ATK": 5.0, "DEF": 4.0, "DROPS": ["Bat Wing", "Cursed Fang"]},
+            {"name": "Tyanak", "HP": 18.0, "ATK": 6.0, "DEF": 3.5, "DROPS": ["Demonic Doll", "Tiny Claw"]},
+            {"name": "Tik-tik", "HP": 20.0, "ATK": 5.0, "DEF": 5.0, "DROPS": ["Shadow Feather", "Dark Essence"]}
         ],
         "Cave": [
-            {"name": "Skeleton", "HP": 7.0, "ATK": 5.0, "DEF": 2.0},
-            {"name": "Cave Bat", "HP": 6.0, "ATK": 4.0, "DEF": 2.0},
-            {"name": "Goblin", "HP": 8.0, "ATK": 6.0, "DEF": 3.0}
+            {"name": "Skeleton", "HP": 16.0, "ATK": 4.5, "DEF": 3.0, "DROPS": ["Bone Fragment", "Rusty Sword"]},
+            {"name": "Cave Bat", "HP": 15.0, "ATK": 4.0, "DEF": 3.0, "DROPS": ["Bat Fang", "Echo Crystal"]},
+            {"name": "Goblin", "HP": 18.0, "ATK": 5.0, "DEF": 4.0, "DROPS": ["Goblin Dagger", "Gold Nugget"]}
         ],
         "Swamp": [
-            {"name": "Swamp Beast", "HP": 9.0, "ATK": 6.0, "DEF": 3.0},
-            {"name": "Bog Creature", "HP": 8.0, "ATK": 5.0, "DEF": 2.0},
-            {"name": "Mud Monster", "HP": 7.0, "ATK": 4.0, "DEF": 2.0}
+            {"name": "Swamp Beast", "HP": 24.0, "ATK": 5.0, "DEF": 5.0, "DROPS": ["Swamp Sludge", "Toxic Fang"]},
+            {"name": "Bog Creature", "HP": 20.0, "ATK": 4.5, "DEF": 4.0, "DROPS": ["Rotten Bark", "Cursed Gem"]},
+            {"name": "Mud Monster", "HP": 22.0, "ATK": 4.0, "DEF": 6.0, "DROPS": ["Hardened Mud", "Dark Shard"]}
         ]
     }
+
     
     if area in enemies:
     # Filter out defeated enemies
@@ -261,81 +262,145 @@ def encounter_enemies(area, world_state):
         print(f"\nThere are no enemies in the {area}.")
         return None
 
+def display_battle_screen(player, enemy):
+    """Display a Pokemon-style battle screen with ASCII art"""
+    clear_terminal()
+    print("\n" + "="*60)
+    print(f"Your {player['class']:<30} Enemy {enemy['name']}")
+    print(f"HP: {player['HP']:.1f}/{player['max_HP']:.1f}{' '*20}HP: {enemy['HP']:.1f}/{enemy['max_HP']:.1f}")
+    print("\n")
+    print(fr"   O    {' '*20}     /\___/\ ")
+    print(fr"  /|\   {' '*20}    (  o o  )")
+    print(fr"  / \   {' '*20}     >  ^  <")
+    print("\n" + "="*60)
+    
+def display_attack_animation(attacker_name, defender_name, damage, is_player):
+    """Display attack animation with ASCII art"""
+    # Forward attack animation
+    forward_animations = [
+        ">>----->",
+        " >>---->",
+        "  >>--->",
+        "   >>-->",
+        "    >>->",
+        "     >>>"
+    ]
+    
+    # Backward attack animation
+    backward_animations = [
+        "<-----<<",
+        "<----<< ",
+        "<---<<  ",
+        "<--<<   ",
+        "<-<<    ",
+        "<<<     "
+    ]
+    
+    animations = forward_animations if is_player else backward_animations
+    
+    for frame in animations:
+        clear_terminal()
+        print("\n" * 2)
+        if is_player:
+            print(" "*10 + frame + " "*20)  # Player attacks right to left
+        else:
+            print(" "*20 + frame + " "*10)  # Enemy attacks left to right
+        print("\n" * 2)
+        time.sleep(0.1)
+    
+    print(f"\n{attacker_name} deals {damage:.1f} damage to {defender_name}!")
+    time.sleep(1)
+
+def display_defend_animation(defender_name):
+    """Display defend animation with ASCII art"""
+    animations = [
+        "╔═══╗",
+        "║   ║",
+        "╚═══╝"
+    ]
+    
+    clear_terminal()
+    print("\n" * 2)
+    for line in animations:
+        print(" "*20 + line)
+    print(f"\n{defender_name} takes a defensive stance!")
+    time.sleep(1)
+
 def battle(player, enemy, world_state, area):
-    """Battle loop where the player can attack, defend, run, or access inventory."""
-    print(f"\nBattle Start! You vs. {enemy['name']}")
+    """Battle loop with Pokemon-style animations"""
+    # Add max_HP to enemy for HP bar display
+    enemy["max_HP"] = enemy["HP"]
+    
+    print(f"\nA wild {enemy['name']} appears!")
+    time.sleep(1)
+    
     while player["HP"] > 0 and enemy["HP"] > 0:
-        print(f"\nYour HP: {player['HP']:.1f} | {enemy['name']} HP: {enemy['HP']:.1f}")
-        print("Choose your action:")
+        display_battle_screen(player, enemy)
+        print("\nWhat will you do?")
         print("1. Attack")
         print("2. Defend")
         print("3. Run")
         print("4. Open Inventory")
-        action = input("Enter the number of your action: ")
+        action = input("Enter your choice: ")
         
         if action == "1":
-            # Calculate player's total attack (base ATK + equipped weapon bonus).
             weapon_bonus = player["equipped_weapon"]["ATK"] if player.get("equipped_weapon") else 0.0
-            
             raw_damage, damage_reduction, final_damage, dice_roll = calculate_damage(
                 player, enemy, weapon_bonus
             )
             
-            print(f"\nYou attack with a dice roll of {dice_roll}!")
-            print(f"Raw damage: {raw_damage:.1f}")
-            print(f"Enemy defense reduces damage by {damage_reduction:.1f}")
-            print(f"Final damage dealt: {final_damage:.1f}")
-            
+            # Player Attack
+            display_attack_animation(player["class"], enemy["name"], final_damage, True)
             enemy["HP"] -= final_damage
             
             if enemy["HP"] <= 0:
-                print(f"You have defeated the {enemy['name']}!")
+                display_battle_screen(player, enemy)
+                print(f"\nThe {enemy['name']} has been defeated!")
                 update_world_state(world_state, area, enemy["name"])
+                
+                
                 save_world(world_state)
                 save_player(player)
+                time.sleep(2)
                 break
             
-            # Enemy counterattack.
+            # Enemy counterattack
             raw_damage, damage_reduction, final_damage, dice_roll = calculate_damage(
                 enemy, player
             )
-            print(f"\nThe {enemy['name']} counterattacks with a dice roll of {dice_roll}!")
-            print(f"Raw damage: {raw_damage:.1f}")
-            print(f"Your defense reduces damage by {damage_reduction:.1f}")
-            print(f"Final damage taken: {final_damage:.1f}")
             
+            display_attack_animation(enemy["name"], player["class"], final_damage, False)
             player["HP"] -= final_damage
             
             if player["HP"] <= 0:
-                print("You have been defeated!")
+                display_battle_screen(player, enemy)
+                print("\nYou have been defeated!")
                 save_world(world_state)
                 save_player(player)
+                time.sleep(2)
                 break
 
         elif action == "2":
             temp_def_bonus = player["DEF"] * 0.5
             player["DEF"] += temp_def_bonus
             
-            print("\nYou brace for the enemy's attack! Defense increased by 50%!")
+            display_defend_animation(player["class"])
             
             raw_damage, damage_reduction, final_damage, dice_roll = calculate_damage(
                 enemy, player
             )
             
-            print(f"The {enemy['name']} attacks with a dice roll of {dice_roll}!")
-            print(f"Raw damage: {raw_damage:.1f}")
-            print(f"Your enhanced defense reduces damage by {damage_reduction:.1f}")
-            print(f"Final damage taken: {final_damage:.1f}")
-            
+            display_attack_animation(enemy["name"], player["class"], final_damage, False)
             player["HP"] -= final_damage
             
-            # Remove temporary defense bonus
             player["DEF"] -= temp_def_bonus
             
             if player["HP"] <= 0:
+                display_battle_screen(player, enemy)
+                print("\nYou have been defeated!")
                 save_world(world_state)
                 save_player(player)
-                print("You have been defeated!")
+                time.sleep(2)
                 break
 
         elif action == "3":
@@ -344,6 +409,7 @@ def battle(player, enemy, world_state, area):
                 print("\nYou successfully escaped the battle!")
                 save_world(world_state)
                 save_player(player)
+                time.sleep(2)
                 break
             else:
                 print("\nEscape failed! The battle continues.")
@@ -353,6 +419,9 @@ def battle(player, enemy, world_state, area):
                 print(f"As you try to flee, the {enemy['name']} attacks!")
                 print(f"You take {final_damage:.1f} damage!")
                 player["HP"] -= final_damage
+                
+                time.sleep(1)
+                
                 if player["HP"] <= 0:
                     print("You have been defeated!")
                     save_world(world_state)
@@ -362,6 +431,7 @@ def battle(player, enemy, world_state, area):
             open_inventory(player)
         else:
             print("\nInvalid action. Please choose again.")
+            time.sleep(1)
 
 def calculate_damage(attacker, defender, weapon_bonus=0.0):
     """

@@ -49,3 +49,6 @@ Legend:
     2. results
     3. pick from results
     4. depending on the results either equip it if its a weapon, use it if its an item
+
+16. EXP - LEVEL
+    when defeating enemies player will game exp

@@ -1134,6 +1134,5 @@ def main():
 
     print("\nThank you for playing!")
 
-
 if __name__ == "__main__":
     main()

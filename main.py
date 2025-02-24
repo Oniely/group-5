@@ -863,5 +863,7 @@ def main():
     
     print("\nThank you for playing!")
 
+#resolved merge conflict
+
 if __name__ == "__main__":
     main()

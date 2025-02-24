@@ -218,6 +218,7 @@ def open_inventory(player, in_village=False):
                     print("Invalid selection. Exiting inventory.")
                 else:
                     player["equipped_weapon"] = weapons[idx]
+                    save_player(player)
                     print(f"You have equipped {player['equipped_weapon']['name']}.")
             except ValueError:
                 print("Invalid input. Exiting inventory.")
@@ -237,19 +238,22 @@ def open_inventory(player, in_village=False):
                 else:
                     item = items.pop(idx)  # Remove the item from inventory once used.
                     if item["name"] == "Small Potion":
-                        heal_amount = player["max_HP"] * 0.25
+                        heal_amount = player["max_HP"] * item['heal']
                         old_hp = player["HP"]
                         player["HP"] = min(player["HP"] + heal_amount, player["max_HP"])
                         print(f"You used a Small Potion and restored {player['HP'] - old_hp:.1f} HP. Current HP: {player['HP']:.1f}")
                     elif item["name"] == "Bomb":
                         print("You throw a Bomb! (Bomb effect not implemented yet.)")
                     elif item["name"] == "Health Potion":
-                        heal_amount = player["max_HP"] * 0.50
+                        heal_amount = player["max_HP"] * item['heal']
                         old_hp = player["HP"]
                         player["HP"] = min(player["HP"] + heal_amount, player["max_HP"])
                         print(f"You used a Health Potion and restored {player['HP'] - old_hp:.1f} HP. Current HP: {player['HP']:.1f}")
                     else:
                         print("Item effect not implemented.")
+                        
+                    save_player(player)
+                    
             except ValueError:
                 print("Invalid input. Exiting inventory.")
         else:
@@ -345,24 +349,60 @@ def encounter_enemies(area, world_state):
     """Randomly selects an enemy for the given area."""
     enemies = {
         "Forest": [
-            {"name": "Diwata", "HP": 18.0, "ATK": 4.5, "DEF": 4.0, "DROPS": ["Healing Herb", "Enchanted Leaf"]},
-            {"name": "Kapri", "HP": 20.0, "ATK": 4.0, "DEF": 5.0, "DROPS": ["Mystic Acorn", "Wooden Charm"]},
-            {"name": "Tikbalang", "HP": 22.0, "ATK": 5.5, "DEF": 3.0, "DROPS": ["Hoof Pendant", "Lucky Feather"]}
+            {"name": "Diwata", "HP": 18.0, "ATK": 4.5, "DEF": 4.0, "DROPS": [
+                {"name": "Healing Herb", "type": "item"},
+                {"name": "Nature Staff", "type": "weapon", "ATK": 3.0}
+            ]},
+            {"name": "Kapri", "HP": 20.0, "ATK": 4.0, "DEF": 5.0, "DROPS": [
+                {"name": "Mystic Acorn", "type": "item"},
+                {"name": "Wooden Sword", "type": "weapon", "ATK": 2.5}
+            ]},
+            {"name": "Tikbalang", "HP": 22.0, "ATK": 5.5, "DEF": 3.0, "DROPS": [
+                {"name": "Lucky Feather", "type": "item"},
+                {"name": "Hoof Blade", "type": "weapon", "ATK": 3.5}
+            ]}
         ],
         "Mountains": [
-            {"name": "Mananggal", "HP": 25.0, "ATK": 5.0, "DEF": 4.0, "DROPS": ["Bat Wing", "Cursed Fang"]},
-            {"name": "Tyanak", "HP": 18.0, "ATK": 6.0, "DEF": 3.5, "DROPS": ["Demonic Doll", "Tiny Claw"]},
-            {"name": "Tik-tik", "HP": 20.0, "ATK": 5.0, "DEF": 5.0, "DROPS": ["Shadow Feather", "Dark Essence"]}
+            {"name": "Mananggal", "HP": 25.0, "ATK": 5.0, "DEF": 4.0, "DROPS": [
+                {"name": "Bat Wing", "type": "item"},
+                {"name": "Cursed Dagger", "type": "weapon", "ATK": 4.0}
+            ]},
+            {"name": "Tyanak", "HP": 18.0, "ATK": 6.0, "DEF": 3.5, "DROPS": [
+                {"name": "Demonic Doll", "type": "item"},
+                {"name": "Tiny Blade", "type": "weapon", "ATK": 3.0}
+            ]},
+            {"name": "Tik-tik", "HP": 20.0, "ATK": 5.0, "DEF": 5.0, "DROPS": [
+                {"name": "Dark Essence", "type": "item"},
+                {"name": "Shadow Bow", "type": "weapon", "ATK": 3.5}
+            ]}
         ],
         "Cave": [
-            {"name": "Skeleton", "HP": 16.0, "ATK": 4.5, "DEF": 3.0, "DROPS": ["Bone Fragment", "Rusty Sword"]},
-            {"name": "Cave Bat", "HP": 15.0, "ATK": 4.0, "DEF": 3.0, "DROPS": ["Bat Fang", "Echo Crystal"]},
-            {"name": "Goblin", "HP": 18.0, "ATK": 5.0, "DEF": 4.0, "DROPS": ["Goblin Dagger", "Gold Nugget"]}
+            {"name": "Skeleton", "HP": 16.0, "ATK": 4.5, "DEF": 3.0, "DROPS": [
+                {"name": "Bone Fragment", "type": "item"},
+                {"name": "Ancient Sword", "type": "weapon", "ATK": 3.0}
+            ]},
+            {"name": "Cave Bat", "HP": 15.0, "ATK": 4.0, "DEF": 3.0, "DROPS": [
+                {"name": "Echo Crystal", "type": "item"},
+                {"name": "Sonic Blade", "type": "weapon", "ATK": 2.5}
+            ]},
+            {"name": "Goblin", "HP": 18.0, "ATK": 5.0, "DEF": 4.0, "DROPS": [
+                {"name": "Gold Nugget", "type": "item"},
+                {"name": "Goblin Sword", "type": "weapon", "ATK": 3.0}
+            ]}
         ],
         "Swamp": [
-            {"name": "Swamp Beast", "HP": 24.0, "ATK": 5.0, "DEF": 5.0, "DROPS": ["Swamp Sludge", "Toxic Fang"]},
-            {"name": "Bog Creature", "HP": 20.0, "ATK": 4.5, "DEF": 4.0, "DROPS": ["Rotten Bark", "Cursed Gem"]},
-            {"name": "Mud Monster", "HP": 22.0, "ATK": 4.0, "DEF": 6.0, "DROPS": ["Hardened Mud", "Dark Shard"]}
+            {"name": "Swamp Beast", "HP": 24.0, "ATK": 5.0, "DEF": 5.0, "DROPS": [
+                {"name": "Toxic Fang", "type": "item"},
+                {"name": "Poison Blade", "type": "weapon", "ATK": 4.0}
+            ]},
+            {"name": "Bog Creature", "HP": 20.0, "ATK": 4.5, "DEF": 4.0, "DROPS": [
+                {"name": "Cursed Gem", "type": "item"},
+                {"name": "Bog Staff", "type": "weapon", "ATK": 3.5}
+            ]},
+            {"name": "Mud Monster", "HP": 22.0, "ATK": 4.0, "DEF": 6.0, "DROPS": [
+                {"name": "Dark Shard", "type": "item"},
+                {"name": "Mud Hammer", "type": "weapon", "ATK": 3.0}
+            ]}
         ]
     }
 
@@ -482,6 +522,13 @@ def battle(player, enemy, world_state, area):
                 print(f"\nThe {enemy['name']} has been defeated!")
                 update_world_state(world_state, area, enemy["name"])
                 
+                drop = random.choice(enemy["DROPS"])
+                if drop["type"] == "weapon":
+                    player["inventory"]["weapons"].append({"name": drop["name"], "ATK": drop["ATK"]})
+                    print(f"\nThe enemy dropped a {drop['name']} (Weapon, ATK: {drop['ATK']})!")
+                else:
+                    player["inventory"]["items"].append({"name": drop["name"]})
+                    print(f"\nThe enemy dropped a {drop['name']} (Item)!")
                 
                 save_world(world_state)
                 save_player(player)

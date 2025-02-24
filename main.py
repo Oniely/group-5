@@ -126,7 +126,7 @@ def load_player(filename="player_save.json"):
         # Ensure the player has a gold key, add default if missing.
         if "gold" not in player:
             player["gold"] = 100  # or another default value
-        print(f"\nPlayer progress loaded successfully!")
+        print("\nPlayer progress loaded successfully!")
         return player
     except FileNotFoundError:
         print("\nNo saved player data found. Starting new game...")

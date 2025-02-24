@@ -1,30 +1,25 @@
 {
-    "class": "Wizard",
-    "HP": 10.010000000000002,
-    "ATK": 6.0,
-    "DEF": 4.0,
-    "max_HP": 20.0,
-    "inventory": {
-        "weapons": [
-            {
-                "name": "Basic Staff",
-                "ATK": 2.0
-            },
-            {
-                "name": "Poison Blade",
-                "ATK": 4.0
-            }
-        ],
-        "items": [
-            {
-                "name": "Small Potion",
-                "heal": 0.25
-            }
-        ]
-    },
-    "equipped_weapon": {
-        "name": "Poison Blade",
-        "ATK": 4.0
-    },
-    "gold": 100
+	"class": "Wizard",
+	"HP": 15.010000000000002,
+	"ATK": 6.0,
+	"DEF": 4.0,
+	"max_HP": 20.0,
+	"inventory": {
+		"weapons": [
+			{
+				"name": "Basic Staff",
+				"ATK": 2.0
+			},
+			{
+				"name": "Poison Blade",
+				"ATK": 4.0
+			}
+		],
+		"items": []
+	},
+	"equipped_weapon": {
+		"name": "Basic Staff",
+		"ATK": 2.0
+	},
+	"gold": 100
 }

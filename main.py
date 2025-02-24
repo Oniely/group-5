@@ -195,16 +195,18 @@ def open_inventory(player, in_village=False):
         print("\nInventory Options:")
         print("1. Equip a weapon")
         print("2. Use an item")
-        print("3. Buy items/weapons")
-        print("4. Sell items/weapons")
-        print("5. Exit Inventory")
+        print("3. Search Inventory")
+        print("4. Buy items/weapons")
+        print("5. Sell items/weapons")
+        print("6. Exit Inventory")
     else:
         print("\nInventory Options:")
         print("1. Equip a weapon")
         print("2. Use an item")
-        print("3. Exit Inventory")
+        print("3. Search Inventory")
+        print("4. Exit Inventory")
     
-    choice = input("Enter your choice: ")
+    choice = input("\nEnter your choice: ")
     
     if choice == "1":
         if weapons:
@@ -258,17 +260,83 @@ def open_inventory(player, in_village=False):
                 print("Invalid input. Exiting inventory.")
         else:
             print("No items available to use.")
-    
+    elif choice == "3": 
+        search_inventory(player)
     # Only show buy/sell options if the player is in the village.
-    elif in_village and choice == "3":
-        buy_item(player)
     elif in_village and choice == "4":
+        buy_item(player)
+    elif in_village and choice == "5":
         sell_item(player)
-    elif (in_village and choice == "5") or (not in_village and choice == "3"):
+    elif (in_village and choice == "6") or (not in_village and choice == "4"):
         print("Exiting inventory.")
     else:
         print("Invalid choice. Exiting inventory.")
 
+def search_inventory(player):
+    keyword = input("\nSearch From Inventory: ").lower().strip()
+    
+    found_items = []
+    
+    if keyword == "":
+        return
+    
+    print("\n--- Search Results ---")
+    # Search weapons
+    for i, weapon in enumerate(player["inventory"]["weapons"]):
+        if keyword in weapon["name"].lower():
+            found_items.append(("weapon", i, weapon))
+            
+    # Search items
+    for i, item in enumerate(player["inventory"]["items"]):
+        if keyword in item["name"].lower():
+            found_items.append(("item", i, item))
+    
+    if not found_items:
+        print("No matching items found.")
+        try_again = input("\nTry again? (y/others): ").lower().strip()
+        
+        if (try_again == "y"):
+            clear_terminal()
+            search_inventory(player)
+        else:
+            return
+        
+    # Display results
+    for i, (item_type, idx, item) in enumerate(found_items, 1):
+        if item_type == "weapon":
+            print(f"{i}. {item['name']} (Weapon, ATK: {item['ATK']:.1f})")
+        else:
+            print(f"{i}. {item['name']} (Item)")
+    
+    # Let user select an item from results
+    choice = ""
+    if found_items:
+        choice = input("\nSelect an item number to use/equip (or press Enter to cancel): ")
+    
+    if choice.strip():
+        try:
+            idx = int(choice) - 1
+            if 0 <= idx < len(found_items):
+                item_type, original_idx, item = found_items[idx]
+                if item_type == "weapon":
+                    # Equip weapon
+                    player["equipped_weapon"] = item
+                    print(f"Equipped {item['name']}")
+                else:
+                    # Use item (remove from inventory)
+                    player["inventory"]["items"].pop(original_idx)
+                    if item["name"] in "potion":
+                        heal_amount = player["max_HP"] * item['heal']
+                        old_hp = player["HP"]
+                        player["HP"] = min(player["HP"] + heal_amount, player["max_HP"])
+                        print(f"Used {item['name']} and restored {player['HP'] - old_hp:.1f} HP")
+                    else:
+                        print(f"Used {item['name']}")
+                save_player(player)
+            else:
+                print("Invalid selection.")
+        except ValueError:
+            print("Invalid input.")
 
 def choose_class():
     """Player selects a class. Default inventory, equipment, and gold are assigned based on class."""

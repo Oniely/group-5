@@ -1,17 +1,15 @@
 {
     "defeated_enemies": {
-        "Forest": [
-            "Kapri",
-            "Diwata",
-            "Tikbalang",
-            "Big Boss"
+        "Swamp": [
+            "Swamp Beast"
         ],
-        "Cave": [
-            "Big Boss"
+        "Forest": [
+            "Big Boss",
+            "Kapri"
         ]
     },
     "visited_areas": [
-        "Forest",
-        "Cave"
+        "Swamp",
+        "Forest"
     ]
 }

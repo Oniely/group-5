@@ -2,12 +2,21 @@ import random
 import os
 import json
 import time
+from rich import print
+from rich import box
 from rich.table import Table
 from rich.console import Console
 from merchant import talk_to_merchant
 
 console = Console()
-table_menu = Table(show_header=True, header_style="bold magenta")
+table_menu = Table(
+    show_header=True, 
+    row_styles=["#D44D4D on #4A4A4A"], 
+    style="on #8A8A8A",  # Use 'on' to set background color
+    header_style="bold black on #4A4A4A", 
+    border_style="black",
+    box=box.ROUNDED
+    )
 
 table_menu.add_column("Action", style="dim", width=16)
 table_menu.add_column("Input", justify="center")
@@ -218,20 +227,11 @@ def open_inventory(player, in_village=False):
         print("No items in inventory.")
 
     # Display options based on location.
-    if in_village:
-        print("\nInventory Options:")
-        print("1. Equip a weapon")
-        print("2. Use an item")
-        print("3. Search Inventory")
-        print("4. Buy items/weapons")
-        print("5. Sell items/weapons")
-        print("6. Exit Inventory")
-    else:
-        print("\nInventory Options:")
-        print("1. Equip a weapon")
-        print("2. Use an item")
-        print("3. Search Inventory")
-        print("4. Exit Inventory")
+    print("\nInventory Options:")
+    print("1. Equip a weapon")
+    print("2. Use an item")
+    print("3. Search Inventory")
+    print("4. Exit Inventory")
 
     choice = input("\nEnter your choice: ")
 
@@ -294,11 +294,7 @@ def open_inventory(player, in_village=False):
     elif choice == "3":
         search_inventory(player)
     # Only show buy/sell options if the player is in the village.
-    elif in_village and choice == "4":
-        buy_item(player)
-    elif in_village and choice == "5":
-        sell_item(player)
-    elif (in_village and choice == "6") or (not in_village and choice == "4"):
+    elif (in_village and choice == "4") or (not in_village and choice == "4"):
         print("Exiting inventory.")
     else:
         print("Invalid choice. Exiting inventory.")

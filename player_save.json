@@ -26,6 +26,9 @@
         "items": [
             {
                 "name": "Health Potion"
+            },
+            {
+                "name": "Lucky Feather"
             }
         ]
     },
@@ -34,6 +37,6 @@
         "ATK": 4.0
     },
     "gold": 70,
-    "EXP": 0,
+    "EXP": 100,
     "LVL": 2
 }

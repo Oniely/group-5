@@ -39,4 +39,5 @@ Legend:
 13. Multiplayer 😎 - 🟥
     What to do? Implement a multiplayer system where the player can join a group and play together. How can we do this? I don't know, but in concept it would be that the host will be the party leader and they would only be the one able to navigate around, the player who joined the party would be able to do everything else except go to different areas.
 
-
+14. Game Over - 🟥🟥
+    What happens after a game over? Will a the game reset and the user have to pick a new class all over again? 
